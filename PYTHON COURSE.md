@@ -141,18 +141,22 @@ total_spent = 0
 
 WIDTH = 60
 
+
 def title(message):
     print(f"{PINK}\n{'=' * WIDTH}")
     print(message.center(WIDTH))
     print(f"{'=' * WIDTH}{RESET}")
 
+
 def menu_item(number, label, color=CYAN):
     # Each menu item starts at the same position.
     print(f"{color}    [{number:>2}]  {label}{RESET}")
 
+
 def price_line(label, amount):
     # Left-align the label and right-align the peso amount.
     print(f"    {label:<38} ₱{amount:>10,.2f}")
+
 
 def get_name():
     global customer_name
@@ -160,6 +164,7 @@ def get_name():
         customer_name = input(CYAN + "    Customer name: " + RESET).strip()
         if customer_name == "":
             print(RED + "    Please enter your name." + RESET)
+
 
 def show_lessons():
     title("AVAILABLE PYTHON LESSONS")
@@ -173,6 +178,7 @@ def show_lessons():
     menu_item(11, "Purchase All Lessons", YELLOW)
     menu_item(0, "Return to Main Menu", RED)
 
+
 def show_description(i):
     name, price, description = lessons[i]
     title(name.upper())
@@ -183,6 +189,7 @@ def show_description(i):
             print("    " + line)
     print("    " + "-" * 53)
     price_line("LESSON PRICE", price)
+
 
 def purchase(items, purchase_all=False):
     global total_spent
@@ -199,7 +206,6 @@ def purchase(items, purchase_all=False):
     for i in cart:
         price_line(lessons[i][0], lessons[i][1])
         subtotal = subtotal + lessons[i][1]
-    # No discounts: customer pays the full lesson price.
     total = subtotal
 
     print("    " + "-" * 53)
