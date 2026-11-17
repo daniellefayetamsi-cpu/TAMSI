@@ -1,29 +1,11 @@
+PINK = "\033[95m"
+CYAN = "\033[96m"
+GREEN = "\033[92m"
+RED = "\033[91m"
+YELLOW = "\033[93m"
+RESET = "\033[0m"
 
-import ast
-import math
-
-# ==========================================
-#           PYTHON LEARNING HUB
-#          LEARN • PRACTICE • GROW
-# ==========================================
-
-# COLORS
-P = "\033[95m"
-C = "\033[96m"
-G = "\033[92m"
-R = "\033[91m"
-Y = "\033[93m"
-PK = "\033[38;5;213m"
-X = "\033[0m"
-
-colors = [PK, C, G, Y, P]
-
-# ==========================================
-#                 LESSONS
-# ==========================================
-
-lessons = [
-    ("Basic Python Syntax", 50,
+lessons = [("Basic Python Syntax", 50,
      "Syntax refers to the rules for writing Python.\n"
      "Indentation: Spaces that organize code blocks.\n"
      "Case sensitivity: name and Name are different.\n"
@@ -117,53 +99,7 @@ lessons = [
      "Example:\n"
      "for i in range(2):\n"
      "    for j in range(2):\n"
-     "        print(i, j)")
-]
-
-# ==========================================
-#             CODING CHALLENGES
-# ==========================================
-
-tasks = [
-    ("Print Hello World!", 'print("Hello World!")'),
-
-    ("Store a name in student_name.",
-     'student_name = "Ana"'),
-
-    ("Create integer age and decimal price.",
-     "age = 18\nprice = 19.99"),
-
-    ("Assign 3.14159 to PI.",
-     "PI = 3.14159"),
-
-    ("Calculate 2 + 3 * 4.",
-     "result = 2 + 3 * 4"),
-
-    ("Write an if and else statement.",
-     'if age >= 18:\n'
-     '    print("Adult")\n'
-     'else:\n'
-     '    print("Minor")'),
-
-    ("Compare 10 and 5 using >.",
-     "comparison = 10 > 5"),
-
-    ("Use the logical and operator.",
-     "allowed = age >= 18 and has_id"),
-
-    ("Print numbers 1 to 5 using a for loop.",
-     "for i in range(1, 6):\n"
-     "    print(i)"),
-
-    ("Create two nested for loops.",
-     "for i in range(2):\n"
-     "    for j in range(2):\n"
-     "        print(i, j)")
-]
-
-# ==========================================
-#           LEARNING RESOURCE LINKS
-# ==========================================
+     "        print(i, j)")]
 
 links = [
     # 1. Basic Python Syntax
@@ -194,370 +130,141 @@ links = [
     "https://www.youtube.com/watch?v=6iF8Xb7Z3wQ",
 
     # 10. Nested Loops
-    "https://www.youtube.com/watch?v=APWy6Pc83gE"
-]
+    "https://www.youtube.com/watch?v=APWy6Pc83gE"]
 
-# Link for purchasing the complete course
 all_lessons_link = "https://bit.ly/3WKLK4j"
 
-# Program records
-bought = set()
-completed = set()
-spent = 0
+customer_name = ""
+purchased = []
+total_spent = 0
 
-# ==========================================
-#             HELPER FUNCTIONS
-# ==========================================
+
+WIDTH = 60
 
 def title(message):
-    print(f"\n{P}{'=' * 54}")
-    print(message.center(54))
-    print(f"{'=' * 54}{X}\n")
+    print(f"{PINK}\n{'=' * WIDTH}")
+    print(message.center(WIDTH))
+    print(f"{'=' * WIDTH}{RESET}")
 
+def menu_item(number, label, color=CYAN):
+    # Each menu item starts at the same position.
+    print(f"{color}    [{number:>2}]  {label}{RESET}")
 
-def error(message):
-    print(f"\n{R}[!] ERROR: {message}{X}\n")
+def price_line(label, amount):
+    # Left-align the label and right-align the peso amount.
+    print(f"    {label:<38} ₱{amount:>10,.2f}")
 
+def get_name():
+    global customer_name
+    while customer_name == "":
+        customer_name = input(CYAN + "    Customer name: " + RESET).strip()
+        if customer_name == "":
+            print(RED + "    Please enter your name." + RESET)
 
-def success(message):
-    print(f"\n{G}[OK] {message}{X}\n")
+def show_lessons():
+    title("AVAILABLE PYTHON LESSONS")
+    print(f"    {'LESSON':<38} {'PRICE':>11}")
+    print("    " + "-" * 53)
+    for i in range(len(lessons)):
+        name, price, description = lessons[i]
+        status = " ✓" if i in purchased else ""
+        print(f"{CYAN}    [{i + 1:>2}] {name:<36} ₱{price:>6,.2f}{GREEN if status else CYAN}{status}{RESET}")
+    print("    " + "-" * 53)
+    menu_item(11, "Purchase All Lessons", YELLOW)
+    menu_item(0, "Return to Main Menu", RED)
 
-
-def ask_choice(prompt, valid):
-    while True:
-        answer = input(f"{C}{prompt}{X}").strip().upper()
-
-        if answer in valid:
-            return answer
-
-        error("Invalid choice. Please try again.")
-
-
-# ==========================================
-#               VIEW LESSON
-# ==========================================
-
-def show_lesson(i):
+def show_description(i):
     name, price, description = lessons[i]
-    color = colors[i % len(colors)]
-
-    title(f"LESSON {i + 1}")
-    print(f"{color}{name.upper()}{X}\n")
-
+    title(name.upper())
     for line in description.split("\n"):
-        if (line.startswith("Example:")
-                or line.startswith("Modulus Example:")):
-            print(f"{C}{line}{X}")
+        if line.startswith("Example:") or line.startswith("Modulus Example:"):
+            print(f"{CYAN}    {line}{RESET}")
         else:
-            print(line)
+            print("    " + line)
+    print("    " + "-" * 53)
+    price_line("LESSON PRICE", price)
 
-    print(f"\n{C}LESSON PRICE: P{price:.2f}{X}\n")
-
-
-# ==========================================
-#             CODING PRACTICE
-# ==========================================
-
-def practice():
-    while True:
-        title("PRACTICE CODING LAB")
-
-        for i, lesson in enumerate(lessons, 1):
-            color = colors[(i - 1) % len(colors)]
-
-            status = (
-                "COMPLETED"
-                if i - 1 in completed
-                else "NOT COMPLETED"
-            )
-
-            print(
-                f"{color}[{i:>2}] "
-                f"{lesson[0]} - {status}{X}\n"
-            )
-
-        print(f"{G}YOUR SCORE: {len(completed) * 10}/100{X}")
-        print(f"{R}[0] Return to Main Menu{X}\n")
-
-        choice = ask_choice(
-            "Choose a challenge: ",
-            [str(n) for n in range(11)]
-        )
-
-        if choice == "0":
-            return
-
-        i = int(choice) - 1
-        task, example = tasks[i]
-
-        while True:
-            title(f"CODING CHALLENGE {i + 1}")
-
-            print(f"{Y}YOUR MISSION: {task}{X}\n")
-            print("Write your Python code below.")
-            print("Type DONE on a separate line to submit.")
-            print("Use 4 spaces for indentation.\n")
-
-            lines = []
-
-            while True:
-                line = input(">>> " if not lines else "... ")
-
-                if line.strip().upper() == "DONE":
-                    break
-
-                lines.append(line)
-
-            answer = "\n".join(lines)
-
-            if not answer.strip():
-                error("You did not enter any code.")
-                continue
-
-            print(f"\n{C}CHECKING YOUR CODE...{X}\n")
-
-            try:
-                submitted = ast.parse(answer)
-                expected = ast.parse(example)
-
-                valid = (
-                    ast.dump(
-                        submitted,
-                        include_attributes=False
-                    )
-                    ==
-                    ast.dump(
-                        expected,
-                        include_attributes=False
-                    )
-                )
-
-                # Allow any nonempty string for Lesson 2.
-                if i == 1 and len(submitted.body) == 1:
-                    node = submitted.body[0]
-
-                    valid = (
-                        isinstance(node, ast.Assign)
-                        and len(node.targets) == 1
-                        and isinstance(
-                            node.targets[0],
-                            ast.Name
-                        )
-                        and node.targets[0].id == "student_name"
-                        and isinstance(
-                            node.value,
-                            ast.Constant
-                        )
-                        and isinstance(
-                            node.value.value,
-                            str
-                        )
-                        and bool(node.value.value.strip())
-                    )
-
-            except SyntaxError as issue:
-                error(f"Syntax error: {issue.msg}")
-                valid = False
-
-            if valid:
-                if i not in completed:
-                    completed.add(i)
-
-                    success(
-                        "CORRECT ANSWER! "
-                        "YOU EARNED 10 POINTS!"
-                    )
-
-                else:
-                    success(
-                        "CORRECT! You already earned "
-                        "points for this challenge."
-                    )
-
-                print(
-                    f"{G}CURRENT SCORE: "
-                    f"{len(completed) * 10}/100{X}\n"
-                )
-
-                input(
-                    "Press ENTER to return to Coding Lab..."
-                )
-
-                break
-
-            else:
-                error("INCORRECT ANSWER!")
-
-                if i == 0:
-                    print(
-                        f"{Y}Your Python syntax may be valid, "
-                        "but the output must be exactly "
-                        "'Hello World!'.{X}\n"
-                    )
-
-                print(f"{C}EXAMPLE CORRECT SOLUTION:{X}")
-                print(example)
-                print()
-
-                print(
-                    f"{Y}[1] Try This Challenge Again{X}"
-                )
-                print(
-                    f"{C}[2] Return to Coding Lab Menu{X}\n"
-                )
-
-                retry = ask_choice(
-                    "Choose an option: ",
-                    ["1", "2"]
-                )
-
-                if retry == "2":
-                    break
-
-
-# ==========================================
-#                  RECEIPT
-# ==========================================
-
-def receipt(cart, subtotal, discount, total, payment):
-    title("OFFICIAL PURCHASE RECEIPT")
-
-    print("              PYTHON LEARNING HUB")
-    print("-" * 54)
-
-    for i in cart:
-        name, price, _ = lessons[i]
-        print(f"{name:<42} P{price:.2f}")
-
-    print("-" * 54)
-    print(f"Subtotal:        P{subtotal:.2f}")
-    print(
-        f"Discount ({discount:.0%}): "
-        f"   -P{subtotal - total:.2f}"
-    )
-    print(f"{C}TOTAL:           P{total:.2f}{X}")
-    print(f"Cash Received:   P{payment:.2f}")
-    print(
-        f"{G}CHANGE:          "
-        f"P{payment - total:.2f}{X}"
-    )
-    print("-" * 54)
-
-    success("PAYMENT SUCCESSFUL!")
-    print("Thank you for purchasing! Happy learning!\n")
-
-
-# ==========================================
-#              PURCHASE SYSTEM
-# ==========================================
-
-def purchase(indices, purchase_all=False):
-    global spent
-
-    cart = [
-        i for i in indices
-        if i not in bought
-    ]
-
-    if not cart:
-        error("You already purchased these lessons.")
+def purchase(items, purchase_all=False):
+    global total_spent
+    cart = []
+    for i in items:
+        if i not in purchased:
+            cart.append(i)
+    if len(cart) == 0:
+        print(RED + "    You already purchased these lessons." + RESET)
         return
-
-    subtotal = sum(
-        lessons[i][1]
-        for i in cart
-    )
-
-    discount = (
-        0.10 if subtotal >= 300
-        else 0.05 if subtotal >= 150
-        else 0
-    )
-
-    total = round(subtotal * (1 - discount), 2)
 
     title("SHOPPING CART")
-
+    subtotal = 0
     for i in cart:
-        color = colors[i % len(colors)]
+        price_line(lessons[i][0], lessons[i][1])
+        subtotal = subtotal + lessons[i][1]
+    # No discounts: customer pays the full lesson price.
+    total = subtotal
 
-        print(
-            f"{color}{lessons[i][0]}{X} "
-            f"- P{lessons[i][1]:.2f}"
-        )
+    print("    " + "-" * 53)
+    price_line("TOTAL", total)
 
-    print(f"\nSubtotal: P{subtotal:.2f}")
-    print(f"Discount: {discount:.0%}")
-    print(f"{C}TOTAL TO PAY: P{total:.2f}{X}\n")
-
-    confirmation = ask_choice(
-        "Purchase now? (YES/NO): ",
-        ["YES", "NO"]
-    )
-
-    if confirmation == "NO":
-        print("\nPurchase cancelled.\n")
+    confirm = input("\n    Proceed to payment? (YES/NO): ").strip().upper()
+    if confirm != "YES":
+        print(RED + "    Purchase cancelled." + RESET)
         return
-
+    get_name()
     while True:
+        amount = input(CYAN + "    Enter payment: ₱" + RESET).strip()
         try:
-            payment = float(
-                input("Enter payment: P")
-            )
-
+            payment = float(amount)
         except ValueError:
-            error("Please enter a valid number.")
+            print(RED + "    Please enter a number." + RESET)
             continue
-
-        if not math.isfinite(payment) or payment < 0:
-            error("Invalid payment amount.")
-
+        if payment != payment or payment == float("inf") or payment == float("-inf") or payment < 0:
+            print(RED + "    Invalid payment amount." + RESET)
         elif payment < total:
-            error(
-                f"Insufficient payment! "
-                f"You need P{total - payment:.2f} more."
-            )
-
-            retry = ask_choice(
-                "Try again? (YES/NO): ",
-                ["YES", "NO"]
-            )
-
-            if retry == "NO":
+            print(RED + f"    Insufficient payment. Need ₱{total - payment:.2f} more." + RESET)
+            again = input("    Try again? (YES/NO): ").strip().upper()
+            if again != "YES":
+                print("    Purchase cancelled.")
                 return
-
         else:
             break
 
-    bought.update(cart)
-    spent += total
-
-    receipt(
-        cart,
-        subtotal,
-        discount,
-        total,
-        payment
-    )
-
-    title("YOUR LEARNING RESOURCE")
-
-    # Purchase All displays only the complete-course link.
-    if purchase_all:
-        print(f"{P}COMPLETE PYTHON COURSE:{X}")
-        print(f"{C}{all_lessons_link}{X}\n")
-
-    # Individual purchases display the lesson's own link.
+    for i in cart:
+        purchased.append(i)
+    total_spent = total_spent + total
+    title("OFFICIAL PAYMENT RECEIPT")
+    print(f"    Customer: {customer_name}")
+    print("    " + "-" * 53)
+    for i in cart:
+        price_line(lessons[i][0], lessons[i][1])
+    print("    " + "-" * 53)
+    price_line("TOTAL", total)
+    price_line("Payment", payment)
+    price_line("Change", payment - total)
+    print(GREEN + "\n" + "PAYMENT SUCCESSFUL!".center(WIDTH) + RESET)
+    title("YOUR LESSON LINKS")
+    if purchase_all or len(purchased) == len(lessons):
+        print("    Complete course:", all_lessons_link)
     else:
         for i in cart:
-            color = colors[i % len(colors)]
-            print(f"{color}{lessons[i][0]}{X}")
-            print(f"{C}{links[i]}{X}\n")
+            print("    " + lessons[i][0])
+            print("    " + links[i])
+    print(GREEN + "\n" + f"Thank you, {customer_name}!".center(WIDTH) + RESET)
 
 
-# ==========================================
-#          DISCOVER THE WORLD OF PYTHON
-# ==========================================
+def view_purchased():
+    title("MY PURCHASED LESSONS")
+    if len(purchased) == 0:
+        print("    You have not purchased any lessons.")
+        return
+    print("    Customer:", customer_name)
+    for i in purchased:
+        print(f"{GREEN}    {lessons[i][0]}{RESET}")
+        print("    Link:", links[i])
+    if len(purchased) == len(lessons):
+        print("    Complete course:", all_lessons_link)
+    print("    " + "-" * 53)
+    price_line("Total spent", total_spent)
+
 
 def discover_python():
     title("DISCOVER THE WORLD OF PYTHON")
@@ -604,126 +311,47 @@ https://bit.ly/4exylmf
 """)
 
 
-# ==========================================
-#                MAIN MENU
-# ==========================================
-
 def main():
     title("WELCOME TO PYTHON LEARNING HUB")
-
-    print("            LEARN • PRACTICE • GROW")
-
+    print(GREEN + "LEARN • SHOP • GROW".center(WIDTH) + RESET)
     while True:
         title("MAIN MENU")
-
-        print(
-            f"{PK}[1] Browse and Purchase Lessons{X}\n"
-        )
-
-        print(
-            f"{C}[2] Discover the World of Python{X}\n"
-        )
-
-        print(
-            f"{G}[3] View Purchased Lessons{X}\n"
-        )
-
-        print(
-            f"{Y}[4] Practice Coding Lab{X}\n"
-        )
-
-        print(f"{R}[5] Exit{X}\n")
-
-        option = ask_choice(
-            "Choose an option (1-5): ",
-            ["1", "2", "3", "4", "5"]
-        )
-
-        if option == "1":
+        menu_item(1, "Browse and Purchase Lessons", PINK)
+        menu_item(2, "Discover Python", CYAN)
+        menu_item(3, "View Purchased Lessons", GREEN)
+        menu_item(4, "Exit", RED)
+        choice = input("\n    Choose an option: ").strip()
+        if choice == "1":
             while True:
-                title("AVAILABLE PYTHON LESSONS")
-
-                for i, lesson in enumerate(lessons, 1):
-                    color = colors[
-                        (i - 1) % len(colors)
-                    ]
-
-                    print(
-                        f"{color}[{i:>2}] "
-                        f"{lesson[0]:<38}{X} "
-                        f"P{lesson[1]:.2f}\n"
-                    )
-
-                print(
-                    f"{G}[11] Purchase All Lessons{X}\n"
-                )
-
-                print(
-                    f"{R}[ 0] Return to Main Menu{X}\n"
-                )
-
-                choice = ask_choice(
-                    "Select a lesson: ",
-                    [str(n) for n in range(12)]
-                )
-
-                if choice == "0":
+                show_lessons()
+                selected = input("\n    Choose a lesson (0-11): ").strip()
+                if selected == "0":
                     break
-
-                elif choice == "11":
-                    purchase(
-                        range(10),
-                        purchase_all=True
-                    )
-
+                elif selected == "11":
+                    purchase(range(len(lessons)), purchase_all=True)
+                elif selected.isdigit() and 1 <= int(selected) <= len(lessons):
+                    i = int(selected) - 1
+                    show_description(i)
+                    if i in purchased:
+                        print(GREEN + "    You already own this lesson." + RESET)
+                    else:
+                        answer = input("\n    Purchase this lesson? (YES/NO): ").strip().upper()
+                        if answer == "YES":
+                            purchase([i])
                 else:
-                    i = int(choice) - 1
-
-                    show_lesson(i)
-                    purchase([i])
-
-        elif option == "2":
+                    print(RED + "    Invalid lesson choice." + RESET)
+        elif choice == "2":
             discover_python()
-
-        elif option == "3":
-            title("MY PURCHASED LESSONS")
-
-            if not bought:
-                print("No lessons purchased yet.\n")
-
-            elif len(bought) == len(lessons):
-                print(f"{P}COMPLETE PYTHON COURSE:{X}")
-                print(f"{C}{all_lessons_link}{X}\n")
-
-            else:
-                for i in sorted(bought):
-                    color = colors[i % len(colors)]
-
-                    print(
-                        f"{color}{lessons[i][0]}{X}"
-                    )
-
-                    print(f"{C}{links[i]}{X}\n")
-
-            print(
-                f"{G}TOTAL SPENT: "
-                f"P{spent:.2f}{X}\n"
-            )
-
-        elif option == "4":
-            practice()
-
-        elif option == "5":
+        elif choice == "3":
+            view_purchased()
+        elif choice == "4":
             title("THANK YOU FOR LEARNING!")
-
-            print(
-                "Keep practicing and never "
-                "stop improving!"
-            )
-
+            goodbye = "Adiós!, " + customer_name + "!" if customer_name else "See you again!"
+            print(GREEN + goodbye.center(WIDTH) + RESET)
             break
+        else:
+            print(RED + "    Invalid menu choice." + RESET)
 
 
 if __name__ == "__main__":
     main()
-
