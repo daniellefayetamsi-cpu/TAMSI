@@ -1,0 +1,734 @@
+
+import random
+import json
+import os
+import sys
+import subprocess
+import tempfile
+
+# ==========================================
+# FUNDAMENTALS OF PROGRAMMING
+# PYTHON LEARNING SYSTEM
+# ==========================================
+
+SAVE_FILE = "python_learning_progress.json"
+
+# ==========================================
+# ALL 14 PYTHON LESSONS
+# ==========================================
+
+lessons = [
+    {
+        "title": "Fundamentals of Programming",
+        "notes": [
+            "Programming is writing instructions for a computer.",
+            "A program is a set of instructions.",
+            "An algorithm is a step-by-step solution.",
+            "IPO means Input, Process, and Output.",
+            "Input receives data.",
+            "Process performs operations.",
+            "Output displays the result."
+        ],
+        "example": 'print("Hello World!")'
+    },
+    {
+        "title": "Python Basic Syntax",
+        "notes": [
+            "Syntax refers to the rules of writing Python code.",
+            "Python is case-sensitive.",
+            "Indentation organizes code blocks.",
+            "Comments begin with #.",
+            "Python commonly uses four spaces for indentation."
+        ],
+        "example": 'if True:\n    print("Welcome to Python")'
+    },
+    {
+        "title": "Printing Output",
+        "notes": [
+            "print() displays information on the screen.",
+            "Strings must be enclosed in quotation marks.",
+            "Multiple values can be printed together.",
+            "f-strings insert variables into text."
+        ],
+        "example": 'name = "Alex"\nprint(f"Hello, {name}!")'
+    },
+    {
+        "title": "Variables and Constants",
+        "notes": [
+            "Variables store data that can change.",
+            "The = symbol assigns a value.",
+            "Variable names cannot begin with numbers.",
+            "Variable names cannot contain spaces.",
+            "Constants represent values intended not to change.",
+            "Constants are usually written in uppercase."
+        ],
+        "example": 'age = 18\nPI = 3.14159\nprint(age, PI)'
+    },
+    {
+        "title": "Basic Data Types",
+        "notes": [
+            "int represents whole numbers.",
+            "float represents decimal numbers.",
+            "str represents text.",
+            "bool represents True or False.",
+            "type() identifies a value's data type."
+        ],
+        "example": 'age = 18\nprice = 25.50\nname = "Alex"\nis_student = True\nprint(type(age))'
+    },
+    {
+        "title": "Arithmetic Operators",
+        "notes": [
+            "+ means addition.",
+            "- means subtraction.",
+            "* means multiplication.",
+            "/ means division.",
+            "// means floor division.",
+            "% means modulo or remainder.",
+            "** means exponentiation."
+        ],
+        "example": 'a = 10\nb = 3\nprint(a + b)\nprint(a % b)\nprint(a ** b)'
+    },
+    {
+        "title": "Basic Input and Output",
+        "notes": [
+            "input() receives information from the user.",
+            "print() displays information.",
+            "input() returns a string by default.",
+            "int() converts a valid value to an integer.",
+            "float() converts a valid value to a decimal number."
+        ],
+        "example": 'name = input("Enter name: ")\nprint(f"Hello, {name}!")'
+    },
+    {
+        "title": "Arithmetic Expressions",
+        "notes": [
+            "Arithmetic expressions combine values and operators.",
+            "Python follows operator precedence.",
+            "Parentheses are evaluated first.",
+            "Exponentiation follows.",
+            "Multiplication and division come before addition.",
+            "Addition and subtraction have lower precedence."
+        ],
+        "example": 'result = 2 + 3 * 4\nprint(result)  # 14'
+    },
+    {
+        "title": "Conditional Statements",
+        "notes": [
+            "Conditional statements make decisions.",
+            "if executes code when a condition is True.",
+            "== checks equality.",
+            "!= checks inequality.",
+            "> and < compare values.",
+            ">= and <= include equality."
+        ],
+        "example": 'score = 80\nif score >= 75:\n    print("Passed")'
+    },
+    {
+        "title": "If-Elif-Else Statements",
+        "notes": [
+            "if checks the first condition.",
+            "elif checks another condition.",
+            "else runs when previous conditions are False.",
+            "Only the first matching branch executes."
+        ],
+        "example": 'grade = 85\nif grade >= 90:\n    print("Excellent")\nelif grade >= 75:\n    print("Passed")\nelse:\n    print("Failed")'
+    },
+    {
+        "title": "Logical Operators",
+        "notes": [
+            "and requires both conditions to be True.",
+            "or requires at least one condition to be True.",
+            "not reverses a Boolean value.",
+            "Logical operators combine conditions."
+        ],
+        "example": 'age = 20\nhas_id = True\nif age >= 18 and has_id:\n    print("Allowed")'
+    },
+    {
+        "title": "Introduction to Iteration and For Loop",
+        "notes": [
+            "Iteration means repeating instructions.",
+            "A for loop repeats over a sequence.",
+            "range() generates a sequence of numbers.",
+            "range(5) produces 0, 1, 2, 3, 4.",
+            "A for loop is useful when iterating over known values."
+        ],
+        "example": 'for i in range(1, 6):\n    print(i)'
+    },
+    {
+        "title": "While Loop",
+        "notes": [
+            "A while loop repeats while its condition is True.",
+            "The condition is checked before every iteration.",
+            "A counter can control repetition.",
+            "An infinite loop occurs when a condition never becomes False."
+        ],
+        "example": 'count = 1\nwhile count <= 5:\n    print(count)\n    count += 1'
+    },
+    {
+        "title": "Break and Continue",
+        "notes": [
+            "break immediately exits a loop.",
+            "continue skips the current iteration.",
+            "Both work inside for and while loops.",
+            "break is useful for stopping a search.",
+            "continue is useful for skipping unwanted values."
+        ],
+        "example": 'for i in range(1, 6):\n    if i == 3:\n        continue\n    if i == 5:\n        break\n    print(i)'
+    }
+]
+
+# ==========================================
+# RANDOM QUIZ QUESTIONS
+# ==========================================
+
+question_bank = [
+    ("What does IPO mean?",
+     ["Input Process Output", "Input Print Open",
+      "Integer Process Output", "Input Program Output"], 0, 0),
+
+    ("Which symbol begins a comment?",
+     ["@", "#", "$", "&"], 1, 1),
+
+    ("Which function displays output?",
+     ["input()", "type()", "print()", "int()"], 2, 2),
+
+    ("Which is a valid variable name?",
+     ["2name", "first name", "first_name", "first-name"], 2, 3),
+
+    ("What type is 3.14?",
+     ["int", "str", "float", "bool"], 2, 4),
+
+    ("What is 7 % 2?",
+     ["1", "2", "3", "3.5"], 0, 5),
+
+    ("What does input() return by default?",
+     ["int", "float", "str", "bool"], 2, 6),
+
+    ("What is 2 + 3 * 4?",
+     ["20", "14", "24", "9"], 1, 7),
+
+    ("Which operator checks equality?",
+     ["=", "==", "!=", ">="], 1, 8),
+
+    ("Which keyword checks another condition?",
+     ["else", "elif", "for", "break"], 1, 9),
+
+    ("When is A and B True?",
+     ["Both are True", "One is True",
+      "Both are False", "Always"], 0, 10),
+
+    ("How many values are in range(4)?",
+     ["3", "4", "5", "0"], 1, 11),
+
+    ("When does a while loop repeat?",
+     ["While condition is True", "Only once",
+      "Always ten times", "Never"], 0, 12),
+
+    ("Which keyword exits a loop?",
+     ["continue", "break", "elif", "print"], 1, 13),
+
+    ("What does continue do?",
+     ["Ends the program", "Skips to next iteration",
+      "Exits the loop", "Prints a value"], 1, 13),
+
+    ("What is 2 ** 3?",
+     ["6", "8", "9", "5"], 1, 5),
+
+    ("What data type is True?",
+     ["str", "int", "bool", "float"], 2, 4),
+
+    ("What does not True evaluate to?",
+     ["True", "False", "None", "1"], 1, 10),
+
+    ("What is printed by print('Hi')?",
+     ["Hi", "print", "Nothing", "Error"], 0, 2),
+
+    ("Which loop iterates over a list?",
+     ["for", "if", "elif", "else"], 0, 11)
+]
+
+# ==========================================
+# CODING LAB CHALLENGES
+# ==========================================
+
+coding_challenges = [
+    ("Fundamentals of Programming",
+     "Ask for two numbers and display their sum.",
+     "Input: 5 and 3 | Output: 8"),
+
+    ("Python Basic Syntax",
+     "Write a properly indented if statement.",
+     "Display: Ready"),
+
+    ("Printing Output",
+     "Print Welcome to Python.",
+     "Output: Welcome to Python"),
+
+    ("Variables and Constants",
+     "Create a name variable and SCHOOL_YEAR constant.",
+     "Print both values."),
+
+    ("Basic Data Types",
+     "Create an int, float, str, and bool.",
+     "Display their types using type()."),
+
+    ("Arithmetic Operators",
+     "Ask for two numbers and multiply them.",
+     "Input: 4 and 5 | Output: 20"),
+
+    ("Basic Input and Output",
+     "Ask for a name and display a greeting.",
+     "Input: Alex | Output: Hello, Alex!"),
+
+    ("Arithmetic Expressions",
+     "Calculate 2 + 3 * 4.",
+     "Expected output: 14"),
+
+    ("Conditional Statements",
+     "Ask for a score and print Pass if >= 75.",
+     "Input: 80 | Output: Pass"),
+
+    ("If-Elif-Else Statements",
+     "Print Excellent for 90+, Pass for 75-89, otherwise Fail.",
+     "Input: 85 | Output: Pass"),
+
+    ("Logical Operators",
+     "Check if age >= 18 and has_id is True.",
+     "Use the and operator."),
+
+    ("For Loop",
+     "Print numbers 1 to 5 using for.",
+     "Use range(1, 6)."),
+
+    ("While Loop",
+     "Print numbers 1 to 5 using while.",
+     "Increase your counter."),
+
+    ("Break and Continue",
+     "Print 1 to 5, skip 3, and stop before 5.",
+     "Use break and continue.")
+]
+
+# ==========================================
+# DEBUGGING CHALLENGES
+# ==========================================
+
+debug_challenges = [
+    (
+        "Fix Printing Output",
+        "Display Hello World!",
+        'print("Hello World!"',
+        "Hello World!"
+    ),
+    (
+        "Fix Arithmetic",
+        "Display the sum of 5 and 3.",
+        "print(5 - 3)",
+        "8"
+    ),
+    (
+        "Fix Variables",
+        "Display 20.",
+        "age = 20\nprint(ages)",
+        "20"
+    ),
+    (
+        "Fix Expressions",
+        "Display 14.",
+        "print((2 + 3) * 4)",
+        "14"
+    ),
+    (
+        "Fix Conditional Statements",
+        "Display Adult.",
+        'age = 18\nif age >= 18:\n    print("Minor")\nelse:\n    print("Adult")',
+        "Adult"
+    ),
+    (
+        "Fix Logical Operators",
+        "Display Allowed.",
+        'age = 20\nhas_id = True\nif age >= 18 and not has_id:\n    print("Allowed")',
+        "Allowed"
+    ),
+    (
+        "Fix For Loop",
+        "Display 1, 2, 3 on separate lines.",
+        "for i in range(1, 3):\n    print(i)",
+        "1\n2\n3"
+    ),
+    (
+        "Fix While Loop",
+        "Display 1, 2, 3 on separate lines.",
+        "i = 1\nwhile i < 3:\n    print(i)\n    i += 1",
+        "1\n2\n3"
+    ),
+    (
+        "Fix Break",
+        "Display 1 and 2 on separate lines.",
+        "for i in range(1, 6):\n    if i == 2:\n        break\n    print(i)",
+        "1\n2"
+    ),
+    (
+        "Fix Continue",
+        "Display 1 and 3 on separate lines.",
+        "for i in range(1, 4):\n    if i == 2:\n        break\n    print(i)",
+        "1\n3"
+    )
+]
+
+# ==========================================
+# SAVE AND LOAD PROGRESS
+# ==========================================
+
+def load_progress():
+    default = {
+        "points": 0,
+        "quizzes": 0,
+        "debug_solved": 0
+    }
+
+    if os.path.exists(SAVE_FILE):
+        try:
+            with open(SAVE_FILE, "r") as file:
+                data = json.load(file)
+
+            if isinstance(data, dict):
+                for key in default:
+                    value = data.get(key, 0)
+                    if type(value) is int and value >= 0:
+                        default[key] = value
+
+        except (OSError, ValueError):
+            print("Could not load saved progress.")
+
+    return default
+
+
+def save_progress(progress):
+    try:
+        with open(SAVE_FILE, "w") as file:
+            json.dump(progress, file, indent=4)
+    except OSError:
+        print("Could not save progress.")
+
+
+# ==========================================
+# OPTION 1: REVIEW ALL LESSONS
+# ==========================================
+
+def show_lessons():
+    print("\n========== ALL PYTHON LESSONS ==========")
+
+    for number, lesson in enumerate(lessons, start=1):
+        print(f"\nLESSON {number}: {lesson['title']}")
+        print("-" * 45)
+
+        print("\nLESSON DESCRIPTION:")
+        for note in lesson["notes"]:
+            print(f"* {note}")
+
+        print("\nPYTHON CODE EXAMPLE:")
+        print(lesson["example"])
+        print("-" * 45)
+
+    print("\n========== END OF ALL 14 LESSONS ==========")
+    print("You have completed reviewing all lessons!")
+
+
+# ==========================================
+# OPTION 2: RANDOM QUIZ
+# ==========================================
+
+def take_quiz(progress):
+    print("\n========== RANDOM PYTHON QUIZ ==========")
+
+    selected = random.sample(question_bank, 5)
+    score = 0
+
+    for number, item in enumerate(selected, 1):
+        question, options, correct, topic = item
+
+        print(f"\nQuestion {number}/5")
+        print("Topic:", lessons[topic]["title"])
+        print(question)
+
+        shuffled = list(enumerate(options))
+        random.shuffle(shuffled)
+
+        for index, (_, option) in enumerate(shuffled):
+            letter = chr(65 + index)
+            print(f"{letter}. {option}")
+
+        while True:
+            answer = input("Your answer (A-D): ").strip().upper()
+
+            if answer in ("A", "B", "C", "D"):
+                break
+
+            print("Invalid answer. Choose A, B, C, or D.")
+
+        selected_index = ord(answer) - 65
+        original_index = shuffled[selected_index][0]
+
+        if original_index == correct:
+            print("Correct! +10 points")
+            score += 1
+            progress["points"] += 10
+        else:
+            print("Incorrect.")
+            print("Correct answer:", options[correct])
+
+    progress["quizzes"] += 1
+
+    print("\n========== QUIZ RESULT ==========")
+    print(f"Score: {score}/5")
+    print(f"Points earned: {score * 10}")
+
+    save_progress(progress)
+
+
+# ==========================================
+# READ MULTILINE PYTHON CODE
+# ==========================================
+
+def read_code():
+    print("\nEnter your Python code.")
+    print("Type END on a separate line when finished.")
+    print("Type CANCEL on the first line to return.")
+
+    lines = []
+
+    while True:
+        try:
+            line = input()
+        except EOFError:
+            return ""
+
+        if line.strip().upper() == "CANCEL" and not lines:
+            return ""
+
+        if line.strip().upper() == "END":
+            break
+
+        lines.append(line)
+
+    return "\n".join(lines)
+
+
+# ==========================================
+# RUN STUDENT CODE
+# ==========================================
+
+def run_code(code, timeout=5):
+    # Only execute Python code that you trust.
+    # This runs code locally, not in a secure sandbox.
+
+    with tempfile.TemporaryDirectory() as folder:
+        path = os.path.join(folder, "student_code.py")
+
+        with open(path, "w", encoding="utf-8") as file:
+            file.write(code)
+
+        result = subprocess.run(
+            [sys.executable, "-I", path],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            cwd=folder
+        )
+
+        return result
+
+
+# ==========================================
+# OPTION 3: PYTHON CODING LAB
+# ==========================================
+
+def coding_lab():
+    challenge = random.choice(coding_challenges)
+
+    print("\n========== PYTHON CODING LAB ==========")
+    print("Topic:", challenge[0])
+    print("Task:", challenge[1])
+    print("Example:", challenge[2])
+
+    code = read_code()
+
+    if not code.strip():
+        print("No code entered.")
+        return
+
+    try:
+        print("\n========== YOUR PROGRAM OUTPUT ==========")
+
+        result = run_code(code, timeout=10)
+
+        if result.stdout:
+            print(result.stdout)
+
+        if result.stderr:
+            print(result.stderr)
+
+        if result.returncode == 0:
+            print("Program executed successfully!")
+            print("Review your output against the task.")
+        else:
+            print("Your program contains an error.")
+            print("Check the error message and try again.")
+
+    except subprocess.TimeoutExpired:
+        print("Time limit reached.")
+        print("Check for an infinite loop.")
+
+    except OSError as error:
+        print("Could not run code:", error)
+
+
+# ==========================================
+# OPTION 4: RANDOM DEBUGGING CHALLENGE
+# ==========================================
+
+def debugging_challenge(progress):
+    challenge = random.choice(debug_challenges)
+
+    title, description, buggy_code, expected = challenge
+
+    print("\n========== DEBUGGING CHALLENGE ==========")
+    print("Challenge:", title)
+    print("Task:", description)
+
+    print("\nBUGGY CODE:")
+    print("-" * 45)
+    print(buggy_code)
+    print("-" * 45)
+
+    print("\nFind and correct the error.")
+
+    code = read_code()
+
+    if not code.strip():
+        print("No code entered.")
+        return
+
+    try:
+        result = run_code(code)
+
+        actual = result.stdout.strip()
+
+        print("\n========== DEBUGGING RESULT ==========")
+
+        if result.returncode == 0 and actual == expected:
+            print("Correct! You fixed the bug!")
+            print("+20 points")
+
+            progress["points"] += 20
+            progress["debug_solved"] += 1
+
+        else:
+            print("Not correct yet. Keep practicing!")
+
+            if result.stderr:
+                print("\nPython Error:")
+                print(result.stderr)
+
+            print("\nExpected output:")
+            print(expected)
+
+            print("\nYour output:")
+            print(actual if actual else "(No output)")
+
+        save_progress(progress)
+
+    except subprocess.TimeoutExpired:
+        print("Time limit reached. Check your loop.")
+
+    except OSError as error:
+        print("Could not test code:", error)
+
+
+# ==========================================
+# OPTION 5: VIEW PROGRESS
+# ==========================================
+
+def show_progress(progress):
+    points = progress["points"]
+
+    if points >= 150:
+        rank = "PROBLEM-SOLVING MASTER"
+    elif points >= 80:
+        rank = "LOGIC EXPERT"
+    elif points >= 30:
+        rank = "CODE EXPLORER"
+    else:
+        rank = "BEGINNER"
+
+    print("\n========== YOUR PROGRESS ==========")
+    print(f"Total Points: {points}")
+    print(f"Quizzes Completed: {progress['quizzes']}")
+    print(f"Debugging Challenges Solved: {progress['debug_solved']}")
+    print(f"Current Rank: {rank}")
+
+
+# ==========================================
+# MAIN MENU
+# ==========================================
+
+def main():
+    print("=" * 50)
+    print("         FUNDAMENTALS OF PROGRAMMING")
+    print("           PYTHON LEARNING SYSTEM")
+    print("=" * 50)
+
+    while True:
+        name = input("\nWhat is your name? ").strip()
+
+        if name:
+            break
+
+        print("Name cannot be empty.")
+
+    print(f"\nWelcome, {name}!")
+    print("Let's start learning Python!")
+
+    progress = load_progress()
+
+    while True:
+        print(f"\n============== MAIN MENU | {name} ==============")
+        print("[1] Review All Lessons")
+        print("[2] Random Quiz")
+        print("[3] Python Coding Lab")
+        print("[4] Random Debugging Challenge")
+        print("[5] View Progress")
+        print("[6] Exit")
+        print("=" * 50)
+
+        choice = input("Choose an option (1-6): ").strip()
+
+        if choice == "1":
+            show_lessons()
+
+        elif choice == "2":
+            take_quiz(progress)
+
+        elif choice == "3":
+            coding_lab()
+
+        elif choice == "4":
+            debugging_challenge(progress)
+
+        elif choice == "5":
+            show_progress(progress)
+
+        elif choice == "6":
+            save_progress(progress)
+            print(f"\nThank you for learning, {name}!")
+            print("Your progress has been saved.")
+            print("Keep learning. Every line of code is progress!")
+            break
+
+        else:
+            print("Invalid choice. Please select 1-6.")
+
+
+if __name__ == "__main__":
+    main()
